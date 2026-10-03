@@ -13,10 +13,10 @@ Container `*-app` menjalankan php-fpm, queue worker & scheduler
 
 Sudah disiapkan (cek saja):
 
-- `.env.mysql`: password root & user `appuser` (acak), database `new`
+- `.env.mysql`: password root & user `appuser` (acak), database `ecosystem`
 - `docker/mysql-init/01-databases.sh`: membuat database `prod` + akses `appuser`
   (otomatis, hanya saat volume `mysql_data` masih kosong)
-- `ecosystem/.env` (DB `new`) & `jarvies/.env` (DB `prod`):
+- `ecosystem/.env` (DB `ecosystem`) & `jarvies/.env` (DB `prod`):
   `DB_HOST=mysql`, `DB_USERNAME=appuser`, `APP_ENV=production`, `APP_DEBUG=false`
 - Antar aplikasi lewat network Docker: `JARVIES_URL=http://jarvies-nginx`,
   `ECOSYSTEM_URL=http://ecosystem-nginx/api`

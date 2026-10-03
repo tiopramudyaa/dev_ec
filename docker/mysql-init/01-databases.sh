@@ -1,7 +1,7 @@
 #!/bin/bash
 # Dijalankan otomatis oleh image MySQL HANYA saat pertama kali
 # (volume mysql_data masih kosong).
-# MYSQL_DATABASE (new, untuk EcoSystem) sudah dibuat otomatis,
+# MYSQL_DATABASE (ecosystem, untuk EcoSystem) sudah dibuat otomatis,
 # script ini menambah database JARVIES (prod) dan memberi akses
 # ke user aplikasi (MYSQL_USER dari .env.mysql).
 set -e
