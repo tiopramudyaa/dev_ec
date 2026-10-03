@@ -1,0 +1,66 @@
+# Nama project compose
+name: ecosystem
+
+services:
+  # Container PHP-FPM + queue worker + scheduler (Laravel)
+  ecosystem-app:
+    build:
+      # Folder source code Laravel (disalin ke image)
+      context: ./ecosystem
+      # Lokasi Dockerfile, relatif dari context
+      dockerfile: ../docker/ecosystem.Dockerfile
+      # Stage PHP di Dockerfile
+      target: app
+    image: ecosystem-app
+    # Nama container, dipanggil nginx lewat fastcgi_pass
+    container_name: ecosystem-app
+    # Environment diambil dari .env Laravel
+    env_file: ./ecosystem/.env
+    volumes:
+      # Folder storage (upload, log) disimpan di volume
+      - ecosystem_storage:/var/www/html/storage
+      # Config supervisord (php-fpm, queue worker, scheduler)
+      - ./docker/supervisord.ecosystem.conf:/etc/supervisor/conf.d/supervisord.conf:ro
+    # Hidup lagi otomatis kalau crash / server reboot
+    restart: unless-stopped
+    networks:
+      # Untuk komunikasi dengan nginx
+      - internal
+      # Untuk koneksi ke MySQL
+      - shared_db
+
+  # Container web server
+  ecosystem-nginx:
+    build:
+      context: ./ecosystem
+      dockerfile: ../docker/ecosystem.Dockerfile
+      # Stage nginx: berisi folder public dari image app
+      target: web
+    image: ecosystem-nginx
+    container_name: ecosystem-nginx
+    ports:
+      # port host:port container (dituju domain)
+      - "3001:80"
+    volumes:
+      # Config nginx (read-only)
+      - ./nginx/defaultEcosystem.conf:/etc/nginx/conf.d/default.conf:ro
+      # File upload (diakses lewat /storage/...)
+      - ecosystem_storage:/var/www/html/storage:ro
+    # Nyalakan container app lebih dulu
+    depends_on:
+      - ecosystem-app
+    restart: unless-stopped
+    networks:
+      - internal
+      # Agar JARVIES bisa memanggil API lewat http://ecosystem-nginx
+      - shared_db
+
+volumes:
+  ecosystem_storage:
+
+networks:
+  # Network privat antara nginx & app
+  internal:
+  shared_db:
+    # Sudah dibuat oleh docker-compose.mysql.yml
+    external: true

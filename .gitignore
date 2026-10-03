@@ -1,0 +1,6 @@
+# Password MySQL, jangan di-commit
+.env.mysql
+
+# Source code Laravel, tidak dilacak oleh git
+ecosystem/
+jarvies/

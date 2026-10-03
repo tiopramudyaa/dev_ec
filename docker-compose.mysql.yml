@@ -1,0 +1,32 @@
+# Nama project compose
+name: mysql
+
+services:
+  mysql:
+    # Image resmi MySQL 8.0
+    image: mysql:8.0
+    # Nama container, dipakai sebagai DB_HOST di .env Laravel
+    container_name: mysql
+    # Password, nama database & user diambil dari .env.mysql
+    env_file: .env.mysql
+    ports:
+      # port host:port container (akses MySQL dari luar Docker)
+      - "3306:3306"
+    volumes:
+      # Data database disimpan di volume agar tidak hilang
+      - mysql_data:/var/lib/mysql
+      # Script pembuatan database prod (JARVIES), jalan sekali saat volume kosong
+      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
+    # Hidup lagi otomatis kalau crash / server reboot
+    restart: unless-stopped
+    networks:
+      # Network bersama dengan EcoSystem & JARVIES
+      - shared_db
+
+volumes:
+  mysql_data:
+
+networks:
+  shared_db:
+    # Nama tetap agar bisa dipakai compose lain
+    name: shared_db

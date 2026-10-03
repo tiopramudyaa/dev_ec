@@ -1,0 +1,39 @@
+# File yang TIDAK ikut disalin ke image (dibaca otomatis oleh
+# BuildKit karena namanya <nama Dockerfile>.dockerignore)
+
+# Rahasia: env diberikan lewat env_file di docker-compose
+.env
+.env.*
+!.env.example
+
+# Dependency diinstall ulang di dalam image (versi Linux)
+vendor
+node_modules
+
+# Cache Laravel dari laptop (berisi package dev seperti pail/sail,
+# bikin error "class not found" karena image pakai --no-dev)
+bootstrap/cache/*.php
+
+# Isi storage lokal (log, session, cache, upload saat development)
+storage/logs/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/app/*
+
+# Link storage dibuat ulang di dalam image
+public/storage
+public/hot
+
+# Lain-lain yang tidak dibutuhkan saat runtime
+.git
+# .claude/skills dipakai Word Report Generator, jangan dibuang
+.claude/*
+!.claude/skills
+tests
+Dockerfile
+dockerFile
+docker
+deploy
+*.md
+*.bat

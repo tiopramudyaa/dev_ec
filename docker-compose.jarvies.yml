@@ -1,0 +1,66 @@
+# Nama project compose
+name: jarvies
+
+services:
+  # Container PHP-FPM + queue worker + scheduler (Laravel)
+  jarvies-app:
+    build:
+      # Folder source code Laravel (disalin ke image)
+      context: ./jarvies
+      # Lokasi Dockerfile, relatif dari context
+      dockerfile: ../docker/jarvies.Dockerfile
+      # Stage PHP di Dockerfile
+      target: app
+    image: jarvies-app
+    # Nama container, dipanggil nginx lewat fastcgi_pass
+    container_name: jarvies-app
+    # Environment diambil dari .env Laravel
+    env_file: ./jarvies/.env
+    volumes:
+      # Folder storage (upload, log) disimpan di volume
+      - jarvies_storage:/var/www/html/storage
+      # Config supervisord (php-fpm, queue worker, scheduler)
+      - ./docker/supervisord.jarvies.conf:/etc/supervisor/conf.d/supervisord.conf:ro
+    # Hidup lagi otomatis kalau crash / server reboot
+    restart: unless-stopped
+    networks:
+      # Untuk komunikasi dengan nginx
+      - internal
+      # Untuk koneksi ke MySQL
+      - shared_db
+
+  # Container web server
+  jarvies-nginx:
+    build:
+      context: ./jarvies
+      dockerfile: ../docker/jarvies.Dockerfile
+      # Stage nginx: berisi folder public dari image app
+      target: web
+    image: jarvies-nginx
+    container_name: jarvies-nginx
+    ports:
+      # port host:port container (dituju domain)
+      - "3002:80"
+    volumes:
+      # Config nginx (read-only)
+      - ./nginx/defaultjarvies.conf:/etc/nginx/conf.d/default.conf:ro
+      # File upload (diakses lewat /storage/...)
+      - jarvies_storage:/var/www/html/storage:ro
+    # Nyalakan container app lebih dulu
+    depends_on:
+      - jarvies-app
+    restart: unless-stopped
+    networks:
+      - internal
+      # Agar EcoSystem bisa memanggil API lewat http://jarvies-nginx
+      - shared_db
+
+volumes:
+  jarvies_storage:
+
+networks:
+  # Network privat antara nginx & app
+  internal:
+  shared_db:
+    # Sudah dibuat oleh docker-compose.mysql.yml
+    external: true

@@ -1,0 +1,2 @@
+# Script dijalankan bash di Linux: wajib LF, bukan CRLF
+*.sh text eol=lf
