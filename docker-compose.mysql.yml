@@ -4,7 +4,11 @@ name: mysql
 services:
   mysql:
     # Image resmi MySQL 8.0
-    image: mysql:8.0
+    # Image MySQL 8.0 + script init (docker/mysql.Dockerfile)
+    build:
+      context: ./docker
+      dockerfile: mysql.Dockerfile
+    image: eco-mysql
     # Nama container, dipakai sebagai DB_HOST di .env Laravel
     container_name: mysql
     # Password, nama database & user diambil dari .env.mysql
@@ -15,8 +19,6 @@ services:
     volumes:
       # Data database disimpan di volume agar tidak hilang
       - mysql_data:/var/lib/mysql
-      # Script pembuatan database prod (JARVIES), jalan sekali saat volume kosong
-      - ./docker/mysql-init:/docker-entrypoint-initdb.d:ro
     # Hidup lagi otomatis kalau crash / server reboot
     restart: unless-stopped
     networks:

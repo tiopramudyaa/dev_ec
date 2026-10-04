@@ -67,7 +67,8 @@ RUN composer dump-autoload --optimize --no-dev \
 EXPOSE 9000
 
 # supervisord menjalankan php-fpm, queue worker & scheduler.
-# Config-nya di-mount dari docker/supervisord.jarvies.conf
+# Config disalin dari docker/supervisord.jarvies.conf (ubah config = build ulang)
+COPY --from=dockercfg supervisord.jarvies.conf /etc/supervisor/conf.d/supervisord.conf
 CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
 
 # =====================================================================
@@ -77,3 +78,6 @@ FROM nginx:alpine AS web
 
 # Salin folder public (css, js, gambar, link storage)
 COPY --from=app /var/www/html/public /var/www/html/public
+
+# Config nginx dari nginx/defaultjarvies.conf (ubah config = build ulang)
+COPY --from=nginxcfg defaultjarvies.conf /etc/nginx/conf.d/default.conf
