@@ -29,6 +29,22 @@ services:
     networks:
       # Network bersama dengan EcoSystem & JARVIES
       - shared_db
+      # Network container workspace (SSH port 2222), agar Navicat bisa
+      # SSH tunnel ke mysql:3306. Host memblokir container -> port host
+      - staging
+
+  # Penerus port untuk Navicat: sshd workspace hanya mengizinkan tunnel ke
+  # localhost (PermitOpen), jadi buka 127.0.0.1:3307 DI DALAM workspace
+  # (berbagi network dengan container workspace) -> mysql:3306.
+  # Navicat: SSH ke port 2222, lalu host 127.0.0.1 port 3307
+  mysql-tunnel:
+    image: alpine/socat
+    container_name: mysql-tunnel
+    network_mode: "container:eclectic-staging-workspace"
+    command: TCP-LISTEN:3307,bind=127.0.0.1,fork,reuseaddr TCP:mysql:3306
+    depends_on:
+      - mysql
+    restart: unless-stopped
 
 volumes:
   mysql_data:
@@ -37,3 +53,7 @@ networks:
   shared_db:
     # Nama tetap agar bisa dipakai compose lain
     name: shared_db
+  staging:
+    # Dibuat oleh devops (container eclectic-staging-workspace)
+    name: eclectic-staging_staging
+    external: true
