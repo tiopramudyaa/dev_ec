@@ -11,11 +11,16 @@ services:
     image: eco-mysql
     # Nama container, dipakai sebagai DB_HOST di .env Laravel
     container_name: mysql
+    # Izinkan migrasi membuat trigger/function tanpa hak SUPER
+    # (binary log aktif secara default di MySQL 8 -> error 1419)
+    command: --log-bin-trust-function-creators=1
     # Password, nama database & user diambil dari .env.mysql
     env_file: .env.mysql
     ports:
-      # port host:port container (akses MySQL dari luar Docker)
-      - "3306:3306"
+      # port host:port container (akses MySQL dari luar Docker).
+      # Host 3306 sudah dipakai MySQL server, jadi pakai 3307 & hanya
+      # localhost (akses dari luar lewat SSH tunnel). App tetap pakai mysql:3306
+      - "127.0.0.1:3307:3306"
     volumes:
       # Data database disimpan di volume agar tidak hilang
       - mysql_data:/var/lib/mysql

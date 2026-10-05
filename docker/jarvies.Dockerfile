@@ -51,8 +51,11 @@ COPY . .
 
 # Buat autoload + jalankan package:discover,
 # siapkan folder storage, link public/storage,
-# lalu storage & bootstrap/cache dimiliki www-data
+# lalu storage & bootstrap/cache dimiliki www-data.
+# chmod a+rX: izin file dari server bisa 660 (tidak terbaca www-data/nginx
+# -> "Could not open input file: artisan" & 404), jadi dibuat terbaca semua
 RUN composer dump-autoload --optimize --no-dev \
+    && chmod -R a+rX /var/www/html \
     && mkdir -p \
         storage/app/public \
         storage/framework/cache/data \
