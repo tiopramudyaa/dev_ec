@@ -18,9 +18,9 @@ services:
     env_file: .env.mysql
     ports:
       # port host:port container (akses MySQL dari luar Docker).
-      # Host 3306 sudah dipakai MySQL server, jadi pakai 3307 & hanya
-      # localhost (akses dari luar lewat SSH tunnel). App tetap pakai mysql:3306
-      - "127.0.0.1:3307:3306"
+      # Host 3306 sudah dipakai MySQL server, jadi pakai 13306 & terbuka
+      # untuk publik (Navicat langsung ke IP server). App tetap pakai mysql:3306
+      - "0.0.0.0:13306:3306"
     volumes:
       # Data database disimpan di volume agar tidak hilang
       - mysql_data:/var/lib/mysql
